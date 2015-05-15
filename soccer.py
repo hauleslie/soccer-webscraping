@@ -9,13 +9,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
-
+import os
+import openpyxl
+import xlsxwriter
 
 def data_scrape(url): 
 
 	teams = ['home','away']
 	types = {'summary': '1', 'defensive': '3', 'offensive': '2', 'passing': '4'}
-  driver = webdriver.PhantomJS(executable_path=r"C:\bin\phantomjs.exe", service_log_path=os.path.devnull, service_args=['--ignore-ssl-errors=true', '--proxy-type=None', '--ssl-protocol=tlsv1'])
+	driver = webdriver.PhantomJS(executable_path=r"C:\phantomjs-2.0.0-windows\bin\phantomjs.exe", service_log_path=os.path.devnull, service_args=['--ignore-ssl-errors=true', '--proxy-type=None', '--ssl-protocol=tlsv1'])
 	wait = WebDriverWait(driver, 30)
 
 	for team in teams:
@@ -44,7 +46,10 @@ def data_scrape(url):
 			master_list = [master_list[x:x+length] for x in range(0, len(master_list) - (length-1), length)]
 
 			globals()['%s_%s_%s_dataframe' % (side,team,t)] = pd.DataFrame(master_list,columns=header_list)
-			print(globals()['%s_%s_%s_dataframe' % (side,team,t)])
+			excel_writer=pd.ExcelWriter('C:\Users\leslie hau\Documents\python\whoscored.xlsx')
+			globals()['%s_%s_%s_dataframe' % (side,team,t)].to_excel(excel_writer,sheet_name=['%s_%s_%s_dataframe' % (side,team,t)],engine='xlsxwriter')
+			excel_writer.save()
+			'''print(globals()['%s_%s_%s_dataframe' % (side,team,t)])                        '''	
 
 	driver.quit()
 
@@ -64,4 +69,3 @@ def main():
 
 if __name__ == '__main__':
    main()
-
